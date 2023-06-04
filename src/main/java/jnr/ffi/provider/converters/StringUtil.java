@@ -122,15 +122,19 @@ final class StringUtil {
     private static final Charset UTF16BE = Charset.forName("UTF-16BE");
 
     static int terminatorWidth(Charset charset) {
-        if (charset.equals(UTF8) || charset.equals(USASCII) || charset.equals(ISO8859_1)) {
-            return 1;
-
+        final int rc;
+        if (charset.equals(UTF8) || charset.equals(USASCII) || charset.equals(ISO8859_1)
+            // Windows 11 (e.g. german version): charset has the name "windows-1252" and uses single-byte-chars:
+            || charset.name().toLowerCase().startsWith("windows-")
+           ) {
+            rc = 1;
         } else if (charset.equals(UTF16) || charset.equals(UTF16LE) || charset.equals(UTF16BE)) {
-            return 2;
+            rc = 2;
 
         } else {
-            return 4;
+            rc = 4;
         }
+        return rc;
     }
 
     static int stringLength(ByteBuffer in, int terminatorWidth) {
